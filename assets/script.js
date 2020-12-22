@@ -1,5 +1,17 @@
-const getWeather = function () {
+const citySearch = function () {
   const city = document.getElementById("city-input").value;
+  document.getElementById("city-input").value = "";
+  getCurrentWeather(city);
+  const cities = JSON.parse(localStorage.getItem("city-search"));
+  if (!cities.includes(city)) {
+    cities.push(city);
+  }
+  localStorage.setItem("city-search", JSON.stringify(cities));
+
+  displayCity();
+};
+
+const getCurrentWeather = function (city) {
   const apiUrl =
     "https://api.openweathermap.org/data/2.5/weather?q=" +
     city +
@@ -29,7 +41,20 @@ const getWeather = function () {
       console.log(data);
     });
   });
-  console.log(city);
+};
+const displayCity = function () {
+  const cities = JSON.parse(localStorage.getItem("city-search"));
+  document.getElementById("saved-cities").innerHTML = "";
+  for (let i = 0; i < cities.length; i++) {
+    document.getElementById(
+      "saved-cities"
+    ).innerHTML += `<li class="list-group-item city" >${cities[i]}</li>`;
+  }
+  document.querySelectorAll(".city").forEach(function (item) {
+    item.addEventListener("click", function () {
+      getCurrentWeather(this.textContent);
+    });
+  });
 };
 const getFiveDays = function (lat, lon) {
   const daysURL =
@@ -77,4 +102,9 @@ const displayWeather = function (cityName, temp, humidity, wind, uv) {
   document.getElementById("uv-index").textContent = "UV Index: " + uv;
 };
 
-document.getElementById("search").addEventListener("click", getWeather);
+if (localStorage.getItem("city-search") === null) {
+  localStorage.setItem("city-search", JSON.stringify([]));
+}
+
+displayCity();
+document.getElementById("search").addEventListener("click", citySearch);
